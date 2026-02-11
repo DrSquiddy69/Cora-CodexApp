@@ -16,6 +16,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
   final _api = CoraApiService();
   String _result = '';
 
+codex/build-cora-cross-platform-chat-app-ulpmvz
+  static const _currentUserMatrixId = '@me:cora.local';
+
+ main
   @override
   Widget build(BuildContext context) {
     return CoraScaffold(
@@ -30,7 +34,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () async {
+ codex/build-cora-cross-platform-chat-app-ulpmvz
+                    final matrixId = await _api.resolveFriendCode(_code.text.trim().toUpperCase());
+                    await _api.createFriendRequest(
+                      fromMatrixUserId: _currentUserMatrixId,
+                      toMatrixUserId: matrixId,
+                    );
+
                     final matrixId = await _api.resolveFriendCode(_code.text);
+main
                     setState(() => _result = 'Request sent to $matrixId');
                   },
                   child: const Text('Send friend request'),
@@ -45,7 +57,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Pending requests'),
+codex/build-cora-cross-platform-chat-app-ulpmvz
+                ListTile(
+                  title: Text('AB2CD'),
+                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check), Icon(Icons.close)]),
+                ),
+
                 ListTile(title: Text('AB2CD'), trailing: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check), Icon(Icons.close)])),
+main
               ],
             ),
           ),
