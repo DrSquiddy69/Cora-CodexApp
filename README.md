@@ -43,7 +43,9 @@ docker run --rm -p 8080:8080 cora-api
 - Friend code lookup endpoint + friend request endpoints.
 - DM/group chat screens and invite-only group creation screens.
 - Profile/settings screens with display name/avatar/bio fields.
+codex/build-cora-cross-platform-chat-app-ulpmvz
 - Runtime-configurable Cora API base URL in Settings (defaults to `http://10.0.2.2:8080` for Android emulator).
+main
 - About/Legal screen includes AGPL notice and source code link.
 - E2EE expectation documented as Matrix-default for DMs/private groups when supported by SDK/device setup.
 
