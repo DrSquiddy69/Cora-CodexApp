@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: synapse
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  synapse:
+    image: matrixdotorg/synapse:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      SYNAPSE_SERVER_NAME: cora.local
+      SYNAPSE_REPORT_STATS: 'no'
+    volumes:
+      - ./data/synapse:/data
+      - ./homeserver.yaml:/data/homeserver.yaml:ro
+    ports:
+      - '8008:8008'
