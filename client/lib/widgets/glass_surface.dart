@@ -19,7 +19,11 @@ class LiquidGlassBackground extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF081025), Color(0xFF0A3A66), Color(0xFF0F74BF)],
+              colors: [
+                Color(0xFF081025),
+                Color(0xFF0A3A66),
+                Color(0xFF0F74BF),
+              ],
             ),
           ),
         ),
@@ -57,7 +61,9 @@ class GlassSurface extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: opacity),
             borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: Colors.white.withValues(alpha: CoraTokens.borderAlpha)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: CoraTokens.borderAlpha),
+            ),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF1FD0FF).withValues(alpha: 0.2),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/glass_surface.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
 import '../theme/cora_theme.dart';
 import '../widgets/cora_scaffold.dart';
+import '../widgets/glass_surface.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -16,6 +16,7 @@ class FriendsScreen extends StatefulWidget {
 class _FriendsScreenState extends State<FriendsScreen> {
   final _code = TextEditingController();
   final _api = CoraApiService();
+
   String _result = '';
   bool _loadingRequests = false;
   List<FriendRequestItem> _pendingRequests = const [];
@@ -70,6 +71,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
     try {
       final matrixId = await _api.resolveFriendCode(normalizedCode);
+
+      // Prevent sending a request to yourself (frontend guard).
       if (matrixId == currentUser.matrixUserId) {
         setState(() => _result = 'You cannot send a friend request to yourself.');
         return;
@@ -79,6 +82,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         fromMatrixUserId: currentUser.matrixUserId,
         toMatrixUserId: matrixId,
       );
+
       if (!mounted) return;
       setState(() => _result = 'Request sent to $matrixId');
       await _loadRequests();
@@ -113,14 +117,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
               children: [
                 TextField(
                   controller: _code,
-                  decoration: const InputDecoration(labelText: 'Add by Friend Code'),
+                  decoration: const InputDecoration(
+                    labelText: 'Add by Friend Code',
+                  ),
                 ),
                 const SizedBox(height: CoraTokens.spaceMd),
                 FilledButton(
                   onPressed: _sendFriendRequest,
                   child: const Text('Send friend request'),
                 ),
-                if (_result.isNotEmpty) Text(_result),
+                if (_result.isNotEmpty) ...[
+                  const SizedBox(height: CoraTokens.spaceSm),
+                  Text(_result),
+                ],
               ],
             ),
           ),
@@ -130,9 +139,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Pending requests'),
-                const SizedBox(height: 8),
+                const SizedBox(height: CoraTokens.spaceSm),
                 if (_loadingRequests)
-                  const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
                 else if (_pendingRequests.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
@@ -149,11 +163,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.check),
-                            onPressed: () => _updateRequest(request.id, 'accepted'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'accepted'),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () => _updateRequest(request.id, 'denied'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'denied'),
                           ),
                         ],
                       ),
@@ -167,7 +183,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 }
-
 
 class _FriendsSidePanel extends StatelessWidget {
   const _FriendsSidePanel();
@@ -184,7 +199,9 @@ class _FriendsSidePanel extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(CoraTokens.radiusMd),
-            border: Border(left: BorderSide(color: const Color(0xFF44D8FF), width: 3)),
+            border: Border(
+              left: BorderSide(color: const Color(0xFF44D8FF), width: 3),
+            ),
           ),
           child: const Text('Use friend code to connect'),
         ),

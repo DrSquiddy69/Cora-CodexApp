@@ -13,9 +13,11 @@ import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/welcome_screen.dart';
+
 import 'services/api_config.dart';
 import 'services/cora_api_service.dart';
 import 'services/session.dart';
+
 import 'theme/cora_theme.dart';
 
 Future<void> main() async {
