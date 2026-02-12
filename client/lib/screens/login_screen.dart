@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../services/cora_api_service.dart';
+import '../services/session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +22,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return LiquidGlassBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('Log in')),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: const Text('Log in'),
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.pushNamed(context, '/settings'),
+              icon: const Icon(Icons.settings_outlined),
+            ),
+          ],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: GlassCard(
@@ -37,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 FilledButton(
                   onPressed: () async {
                     final user = await _api.login(_email.text, _password.text);
+                    Session.currentUser = user;
                     setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
                     if (mounted) Navigator.pushReplacementNamed(context, '/chats');
                   },

@@ -10,6 +10,15 @@ class WelcomeScreen extends StatelessWidget {
     return LiquidGlassBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.pushNamed(context, '/settings'),
+              icon: const Icon(Icons.settings_outlined),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Center(
             child: Padding(

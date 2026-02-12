@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'screens/about_screen.dart';
 import 'services/api_config.dart';
 import 'screens/chat_screen.dart';
+import 'screens/connect_screen.dart';
 import 'screens/chats_list_screen.dart';
 import 'screens/friends_screen.dart';
 import 'screens/group_create_screen.dart';
@@ -37,9 +38,10 @@ class CoraApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF091326),
         useMaterial3: true,
       ),
-      initialRoute: '/',
+      initialRoute: ApiConfig.instance.hasBaseUrl ? '/' : '/connect',
       routes: {
         '/': (_) => const WelcomeScreen(),
+        '/connect': (_) => const ConnectScreen(),
         '/signup': (_) => const SignupScreen(),
         '/login': (_) => const LoginScreen(),
         '/chats': (_) => const ChatsListScreen(),
