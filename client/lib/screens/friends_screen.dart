@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../services/cora_api_service.dart';
+import '../services/session.dart';
 import '../widgets/cora_scaffold.dart';
 
 class FriendsScreen extends StatefulWidget {
@@ -15,9 +16,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   final _code = TextEditingController();
   final _api = CoraApiService();
   String _result = '';
-
-  // TODO: Replace with the logged-in user's Matrix ID once auth/session wiring is in.
-  static const _currentUserMatrixId = '@me:cora.local';
 
   @override
   void dispose() {
@@ -34,8 +32,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
     try {
       final matrixId = await _api.resolveFriendCode(normalizedCode);
+      final currentUser = Session.currentUser;
+      if (currentUser == null) {
+        setState(() => _result = 'Please log in before sending friend requests.');
+        return;
+      }
+
       await _api.createFriendRequest(
-        fromMatrixUserId: _currentUserMatrixId,
+        fromMatrixUserId: currentUser.matrixUserId,
         toMatrixUserId: matrixId,
       );
       if (!mounted) return;
