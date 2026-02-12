@@ -15,13 +15,19 @@ class ConnectScreen extends StatefulWidget {
 }
 
 class _ConnectScreenState extends State<ConnectScreen> {
-  final _serverInput = TextEditingController();
+  late final TextEditingController _serverInput;
   bool _isScanning = false;
   bool _isTestingManual = false;
   bool _cancelScan = false;
   int _scannedHosts = 0;
   int _totalHosts = 0;
   String _status = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _serverInput = TextEditingController(text: ApiConfig.instance.baseUrl);
+  }
 
   @override
   void dispose() {
@@ -80,17 +86,13 @@ class _ConnectScreenState extends State<ConnectScreen> {
     if (foundBaseUrl != null) {
       await ApiConfig.instance.saveBaseUrl(foundBaseUrl!);
       if (!mounted) return;
-      setState(() {
-        _isScanning = false;
-        _status = 'Connected to $foundBaseUrl';
-      });
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pop(context);
       return;
     }
 
     setState(() {
       _isScanning = false;
-      _status = 'No local server found on port 8080.';
+      _status = 'Could not find a Cora server on your LAN.';
     });
   }
 
@@ -131,16 +133,16 @@ class _ConnectScreenState extends State<ConnectScreen> {
     }
   }
 
-  Future<void> _connectManual() async {
+  Future<void> _testAndSave() async {
     final input = _serverInput.text.trim().replaceAll(RegExp(r'/+$'), '');
     if (input.isEmpty) {
-      setState(() => _status = 'Enter a server URL first.');
+      setState(() => _status = 'Please enter a server URL first.');
       return;
     }
 
     setState(() {
       _isTestingManual = true;
-      _status = 'Testing $input ...';
+      _status = 'Testing connection...';
     });
 
     final ok = await _checkHealth(input);
@@ -149,18 +151,14 @@ class _ConnectScreenState extends State<ConnectScreen> {
     if (!ok) {
       setState(() {
         _isTestingManual = false;
-        _status = 'Could not reach $input/health';
+        _status = 'Could not connect. Check the URL and ensure the server is running.';
       });
       return;
     }
 
     await ApiConfig.instance.saveBaseUrl(input);
     if (!mounted) return;
-    setState(() {
-      _isTestingManual = false;
-      _status = 'Connected to $input';
-    });
-    Navigator.pushReplacementNamed(context, '/');
+    Navigator.pop(context);
   }
 
   @override
@@ -170,7 +168,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text('Connect to server'),
+          title: const Text('Connect'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16),
@@ -180,12 +178,20 @@ class _ConnectScreenState extends State<ConnectScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Set up your Cora API endpoint before signing up or logging in.'),
+                    const Text('Configure your Cora API server URL.'),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _serverInput,
+                      decoration: const InputDecoration(
+                        labelText: 'Server URL',
+                        hintText: 'http://192.168.178.158:8080',
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       onPressed: _isScanning ? null : _findLocalServer,
                       icon: const Icon(Icons.wifi_find),
-                      label: const Text('Find local server'),
+                      label: const Text('Auto-detect on LAN'),
                     ),
                     if (_isScanning) ...[
                       const SizedBox(height: 8),
@@ -199,18 +205,10 @@ class _ConnectScreenState extends State<ConnectScreen> {
                         child: const Text('Cancel scan'),
                       ),
                     ],
-                    const Divider(height: 28),
-                    TextField(
-                      controller: _serverInput,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter server address',
-                        hintText: 'http://192.168.178.158:8080',
-                      ),
-                    ),
                     const SizedBox(height: 8),
                     FilledButton(
-                      onPressed: _isTestingManual ? null : _connectManual,
-                      child: const Text('Test and continue'),
+                      onPressed: _isTestingManual ? null : _testAndSave,
+                      child: const Text('Test & Save'),
                     ),
                     if (_status.isNotEmpty) ...[
                       const SizedBox(height: 8),

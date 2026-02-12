@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import '../services/api_config.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
 
@@ -17,6 +18,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _api = CoraApiService();
   String _status = '';
 
+  String get _serverLabel =>
+      ApiConfig.instance.hasBaseUrl ? ApiConfig.instance.baseUrl : 'Not connected';
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openConnect() async {
+    await Navigator.pushNamed(context, '/connect');
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return LiquidGlassBackground(
@@ -27,8 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
           title: const Text('Log in'),
           actions: [
             IconButton(
-              onPressed: () => Navigator.pushNamed(context, '/settings'),
-              icon: const Icon(Icons.settings_outlined),
+              tooltip: 'Connect',
+              onPressed: _openConnect,
+              icon: const Icon(Icons.link),
             ),
           ],
         ),
@@ -37,6 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: GlassCard(
             child: Column(
               children: [
+                Text('Server: $_serverLabel', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 8),
                 TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')),
                 TextField(
                   controller: _password,
@@ -46,10 +66,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () async {
-                    final user = await _api.login(_email.text, _password.text);
-                    Session.currentUser = user;
-                    setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
-                    if (mounted) Navigator.pushReplacementNamed(context, '/chats');
+                    try {
+                      final user = await _api.login(_email.text, _password.text);
+                      Session.currentUser = user;
+                      setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
+                      if (mounted) Navigator.pushReplacementNamed(context, '/chats');
+                    } catch (_) {
+                      setState(
+                        () => _status =
+                            'Login failed. Not connected? Tap Connect in the top-right.',
+                      );
+                    }
                   },
                   child: const Text('Log in'),
                 ),

@@ -38,7 +38,7 @@ class CoraApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF091326),
         useMaterial3: true,
       ),
-      initialRoute: ApiConfig.instance.hasBaseUrl ? '/' : '/connect',
+      initialRoute: '/',
       routes: {
         '/': (_) => const WelcomeScreen(),
         '/connect': (_) => const ConnectScreen(),
