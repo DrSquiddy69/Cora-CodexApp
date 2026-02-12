@@ -46,8 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_isMobile) return KeyEventResult.ignored;
 
     // Only handle key-down Enter presses.
-    if (event is! KeyDownEvent ||
-        event.logicalKey != LogicalKeyboardKey.enter) {
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.enter) {
       return KeyEventResult.ignored;
     }
 

@@ -39,8 +39,8 @@ class CoraApp extends StatelessWidget {
       theme: buildCoraTheme(),
       initialRoute: '/',
       routes: {
-        '/': (_) => const HomeScreen(),          // app starts here
-        '/welcome': (_) => const WelcomeScreen(), // keep if you still want it
+        '/': (_) => const HomeScreen(),
+        '/welcome': (_) => const WelcomeScreen(),
         '/connect': (_) => const ConnectScreen(),
         '/signup': (_) => const SignupScreen(),
         '/login': (_) => const LoginScreen(),

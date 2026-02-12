@@ -11,7 +11,8 @@ class ChatsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CoraScaffold(
       title: 'Chats',
-      currentIndex: 0,
+      currentIndex: 1,
+      sidePanel: const _ConversationListPanel(),
       child: Center(
         child: GlassCard(
           child: Column(

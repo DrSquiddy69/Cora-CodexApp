@@ -154,7 +154,8 @@ class _ConnectScreenState extends State<ConnectScreen> {
     if (!ok) {
       setState(() {
         _isTestingManual = false;
-        _status = 'Could not connect. Check the URL and ensure the server is running.';
+        _status =
+            'Could not connect. Check the URL and ensure the server is running.';
       });
       return;
     }

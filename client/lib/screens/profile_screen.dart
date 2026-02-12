@@ -164,7 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: const InputDecoration(labelText: 'Bio'),
                 ),
                 const SizedBox(height: CoraTokens.spaceMd),
-
                 OutlinedButton(
                   onPressed: _saving ? null : _changePhoto,
                   child: const Text('Change photo'),
@@ -174,7 +173,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: _saving ? null : _saveProfile,
                   child: const Text('Save profile'),
                 ),
-
                 if (_status.isNotEmpty) ...[
                   const SizedBox(height: CoraTokens.spaceSm),
                   Text(_status),

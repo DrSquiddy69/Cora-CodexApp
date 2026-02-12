@@ -50,7 +50,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       color: Color(0xFF81EDFF),
                     ),
                     const SizedBox(height: CoraTokens.spaceMd),
-                    Text('Cora', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Cora',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: CoraTokens.spaceSm),
                     Text(
                       'Server: $_serverLabel',
