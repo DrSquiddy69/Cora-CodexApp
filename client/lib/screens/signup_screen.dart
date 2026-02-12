@@ -57,10 +57,19 @@ class _SignupScreenState extends State<SignupScreen> {
           child: GlassCard(
             child: Column(
               children: [
-                Text('Server: $_serverLabel', style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Server: $_serverLabel',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: _displayName, decoration: const InputDecoration(labelText: 'Display name')),
-                TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')),
+                TextField(
+                  controller: _displayName,
+                  decoration: const InputDecoration(labelText: 'Display name'),
+                ),
+                TextField(
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
                 TextField(
                   controller: _password,
                   obscureText: true,
@@ -70,11 +79,17 @@ class _SignupScreenState extends State<SignupScreen> {
                 FilledButton(
                   onPressed: () async {
                     try {
-                      final user = await _api.signup(_email.text, _password.text, _displayName.text);
+                      final user = await _api.signup(
+                        _email.text,
+                        _password.text,
+                        _displayName.text,
+                      );
                       Session.currentUser = user;
                       setState(() => _status = 'Friend code: ${user.friendCode}');
-                      if (mounted) Navigator.pushReplacementNamed(context, '/chats');
+                      if (!mounted) return;
+                      Navigator.pushReplacementNamed(context, '/chats');
                     } catch (_) {
+                      if (!mounted) return;
                       setState(
                         () => _status =
                             'Signup failed. Not connected? Tap Connect in the top-right.',
@@ -83,7 +98,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                   child: const Text('Create account'),
                 ),
-                if (_status.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_status)),
+                if (_status.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(_status),
+                  ),
               ],
             ),
           ),

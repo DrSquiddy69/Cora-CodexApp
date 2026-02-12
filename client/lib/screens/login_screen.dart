@@ -55,9 +55,15 @@ class _LoginScreenState extends State<LoginScreen> {
           child: GlassCard(
             child: Column(
               children: [
-                Text('Server: $_serverLabel', style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Server: $_serverLabel',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')),
+                TextField(
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
                 TextField(
                   controller: _password,
                   obscureText: true,
@@ -69,9 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     try {
                       final user = await _api.login(_email.text, _password.text);
                       Session.currentUser = user;
-                      setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
-                      if (mounted) Navigator.pushReplacementNamed(context, '/chats');
+                      setState(() =>
+                          _status = 'Welcome ${user.displayName} (${user.friendCode})');
+                      if (!mounted) return;
+                      Navigator.pushReplacementNamed(context, '/chats');
                     } catch (_) {
+                      if (!mounted) return;
                       setState(
                         () => _status =
                             'Login failed. Not connected? Tap Connect in the top-right.',
@@ -80,7 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: const Text('Log in'),
                 ),
-                if (_status.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_status)),
+                if (_status.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(_status),
+                  ),
               ],
             ),
           ),
