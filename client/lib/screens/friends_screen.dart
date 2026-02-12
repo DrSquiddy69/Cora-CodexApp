@@ -15,6 +15,7 @@ class FriendsScreen extends StatefulWidget {
 class _FriendsScreenState extends State<FriendsScreen> {
   final _code = TextEditingController();
   final _api = CoraApiService();
+
   String _result = '';
   bool _loadingRequests = false;
   List<FriendRequestItem> _pendingRequests = const [];
@@ -69,10 +70,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
     try {
       final matrixId = await _api.resolveFriendCode(normalizedCode);
+
       await _api.createFriendRequest(
         fromMatrixUserId: currentUser.matrixUserId,
         toMatrixUserId: matrixId,
       );
+
       if (!mounted) return;
       setState(() => _result = 'Request sent to $matrixId');
       await _loadRequests();
@@ -106,7 +109,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
               children: [
                 TextField(
                   controller: _code,
-                  decoration: const InputDecoration(labelText: 'Add by Friend Code'),
+                  decoration:
+                      const InputDecoration(labelText: 'Add by Friend Code'),
                 ),
                 const SizedBox(height: 12),
                 FilledButton(
@@ -125,7 +129,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 const Text('Pending requests'),
                 const SizedBox(height: 8),
                 if (_loadingRequests)
-                  const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
                 else if (_pendingRequests.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
@@ -142,11 +151,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.check),
-                            onPressed: () => _updateRequest(request.id, 'accepted'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'accepted'),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () => _updateRequest(request.id, 'denied'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'denied'),
                           ),
                         ],
                       ),
