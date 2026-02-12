@@ -1,0 +1,18 @@
+{
+  "version": "1.1.0",
+  "date": "2026-02-12",
+  "features": [
+    "Layered glass surfaces across navigation, lists, and content panels",
+    "Responsive layout for desktop, tablet, and mobile",
+    "New Connect and startup home experience"
+  ],
+  "fixes": [
+    "Enter now sends messages on desktop while Shift+Enter adds a new line",
+    "Public profile views no longer expose user email",
+    "Friend requests now block self-targeting and duplicate entries"
+  ],
+  "summary": [
+    "Cora now feels more like a modern chat app with cyan liquid-glass branding.",
+    "Core messaging and privacy behavior has been tightened for day-to-day usage."
+  ]
+}
