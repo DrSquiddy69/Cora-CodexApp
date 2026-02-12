@@ -22,6 +22,14 @@ jobs:
         working-directory: client
         run: flutter config --enable-windows-desktop
 
+      - name: Ensure windows scaffold exists
+        working-directory: client
+        shell: pwsh
+        run: |
+          if (-not (Test-Path -Path "./windows")) {
+            flutter create . --platforms=windows
+          }
+
       - name: Install dependencies
         working-directory: client
         run: flutter pub get
