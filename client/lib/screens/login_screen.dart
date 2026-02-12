@@ -74,10 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     try {
                       final user = await _api.login(_email.text, _password.text);
-                      Session.currentUser = user;
-                      setState(() =>
-                          _status = 'Welcome ${user.displayName} (${user.friendCode})');
+                      await Session.setCurrentUser(user);
                       if (!mounted) return;
+
+                      setState(() => _status =
+                          'Welcome ${user.displayName} (${user.friendCode})');
+
                       Navigator.pushReplacementNamed(context, '/chats');
                     } catch (_) {
                       if (!mounted) return;

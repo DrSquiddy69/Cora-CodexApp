@@ -84,9 +84,11 @@ class _SignupScreenState extends State<SignupScreen> {
                         _password.text,
                         _displayName.text,
                       );
-                      Session.currentUser = user;
-                      setState(() => _status = 'Friend code: ${user.friendCode}');
+
+                      await Session.setCurrentUser(user);
                       if (!mounted) return;
+
+                      setState(() => _status = 'Friend code: ${user.friendCode}');
                       Navigator.pushReplacementNamed(context, '/chats');
                     } catch (_) {
                       if (!mounted) return;

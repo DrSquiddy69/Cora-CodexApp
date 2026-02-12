@@ -1,4 +1,4 @@
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -12,11 +12,30 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
-  final _messages = <String>['Welcome to your E2EE DM'];
-  bool _emojiOpen = false;
+  final _messages = <String>[];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    if (_controller.text.trim().isEmpty) return;
+    setState(() {
+      _messages.add(_controller.text.trim());
+      _controller.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final desktopEmojiHint = defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux
+        ? 'Tip: press Win + . for emoji'
+        : 'Use your keyboard emoji button';
+
     return LiquidGlassBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -40,9 +59,16 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () => setState(() => _emojiOpen = !_emojiOpen),
-                    icon: const Icon(Icons.emoji_emotions_outlined),
+                  Tooltip(
+                    message: desktopEmojiHint,
+                    child: IconButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(desktopEmojiHint), duration: const Duration(seconds: 2)),
+                        );
+                      },
+                      icon: const Icon(Icons.emoji_emotions_outlined),
+                    ),
                   ),
                   Expanded(
                     child: TextField(
@@ -51,25 +77,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      if (_controller.text.isEmpty) return;
-                      setState(() {
-                        _messages.add(_controller.text);
-                        _controller.clear();
-                      });
-                    },
+                    onPressed: _sendMessage,
                     icon: const Icon(Icons.send),
                   ),
                 ],
               ),
             ),
-            if (_emojiOpen)
-              SizedBox(
-                height: 260,
-                child: EmojiPicker(
-                  onEmojiSelected: (_, emoji) => _controller.text += emoji.emoji,
-                ),
-              ),
           ],
         ),
       ),

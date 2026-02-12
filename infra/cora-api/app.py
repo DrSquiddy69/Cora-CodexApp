@@ -1,17 +1,24 @@
 import hashlib
 import secrets
 import sqlite3
+import uuid
 from pathlib import Path
+import shutil
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from passlib.hash import argon2
 from pydantic import BaseModel, EmailStr, Field
+from fastapi.staticfiles import StaticFiles
 
-DB_PATH = Path(__file__).resolve().parent / 'cora.db'
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / 'cora.db'
+UPLOADS_DIR = BASE_DIR / 'uploads'
 SAFE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 app = FastAPI(title='cora-api', version='1.0.0')
+UPLOADS_DIR.mkdir(exist_ok=True)
+app.mount('/uploads', StaticFiles(directory=UPLOADS_DIR), name='uploads')
 
 
 def db() -> sqlite3.Connection:
@@ -247,3 +254,19 @@ def update_profile(email: EmailStr, payload: ProfileUpdateRequest) -> dict:
         if not row:
             raise HTTPException(status_code=404, detail='User not found')
         return safe_user_dict(row)
+
+
+@app.post('/upload/avatar', status_code=201)
+async def upload_avatar(request: Request, file: UploadFile = File(...)) -> dict:
+    suffix = Path(file.filename or '').suffix.lower()
+    if suffix not in {'.png', '.jpg', '.jpeg', '.webp', '.gif'}:
+        raise HTTPException(status_code=400, detail='Unsupported image format')
+
+    filename = f"{uuid.uuid4().hex}{suffix}"
+    destination = UPLOADS_DIR / filename
+
+    with destination.open('wb') as output:
+        shutil.copyfileobj(file.file, output)
+
+    base_url = str(request.base_url).rstrip('/')
+    return {'avatar_url': f'{base_url}/uploads/{filename}'}

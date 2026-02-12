@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'screens/about_screen.dart';
 import 'services/api_config.dart';
+import 'services/cora_api_service.dart';
+import 'services/session.dart';
 import 'screens/chat_screen.dart';
 import 'screens/connect_screen.dart';
 import 'screens/chats_list_screen.dart';
@@ -19,6 +21,8 @@ import 'screens/welcome_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiConfig.instance.load();
+  await Session.load();
+  await Session.refreshFromBackend(CoraApiService());
   runApp(const CoraApp());
 }
 
