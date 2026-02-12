@@ -44,7 +44,10 @@ class CoraApiService {
     return (jsonDecode(response.body) as Map<String, dynamic>)['matrix_user_id'] as String;
   }
 
-  Future<void> createFriendRequest({required String fromMatrixUserId, required String toMatrixUserId}) async {
+  Future<void> createFriendRequest({
+    required String fromMatrixUserId,
+    required String toMatrixUserId,
+  }) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/friend-requests'),
       headers: {'Content-Type': 'application/json'},

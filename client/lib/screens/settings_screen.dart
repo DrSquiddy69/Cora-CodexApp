@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../services/api_config.dart';
@@ -43,9 +43,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           GlassCard(
             child: Column(
               children: [
-                TextField(controller: _displayName, decoration: const InputDecoration(labelText: 'Display name')),
-                TextField(controller: _bio, decoration: const InputDecoration(labelText: 'Bio')),
-                TextField(controller: _avatar, decoration: const InputDecoration(labelText: 'Avatar URL')),
+                TextField(
+                  controller: _displayName,
+                  decoration: const InputDecoration(labelText: 'Display name'),
+                ),
+                TextField(
+                  controller: _bio,
+                  decoration: const InputDecoration(labelText: 'Bio'),
+                ),
+                TextField(
+                  controller: _avatar,
+                  decoration: const InputDecoration(labelText: 'Avatar URL'),
+                ),
                 TextField(
                   controller: _apiBaseUrl,
                   decoration: const InputDecoration(

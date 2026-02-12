@@ -16,6 +16,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   final _api = CoraApiService();
   String _result = '';
 
+  // TODO: Replace with the logged-in user's Matrix ID once auth/session wiring is in.
   static const _currentUserMatrixId = '@me:cora.local';
 
   @override
@@ -55,7 +56,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
           GlassCard(
             child: Column(
               children: [
-                TextField(controller: _code, decoration: const InputDecoration(labelText: 'Add by Friend Code')),
+                TextField(
+                  controller: _code,
+                  decoration: const InputDecoration(labelText: 'Add by Friend Code'),
+                ),
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: _sendFriendRequest,
@@ -73,7 +77,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 Text('Pending requests'),
                 ListTile(
                   title: Text('AB2CD'),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check), Icon(Icons.close)]),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Icon(Icons.check), Icon(Icons.close)],
+                  ),
                 ),
               ],
             ),
