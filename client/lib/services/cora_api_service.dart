@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/app_user.dart';
-codex/build-cora-cross-platform-chat-app-ulpmvz
 import 'api_config.dart';
 
 class CoraApiService {
@@ -12,16 +11,6 @@ class CoraApiService {
   Future<AppUser> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/login'),
-
-class CoraApiService {
-  CoraApiService({this.baseUrl = 'http://10.0.2.2:8080'});
-
-  final String baseUrl;
-
-  Future<AppUser> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/login'),
- main
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -33,11 +22,7 @@ class CoraApiService {
 
   Future<AppUser> signup(String email, String password, String displayName) async {
     final response = await http.post(
-codex/build-cora-cross-platform-chat-app-ulpmvz
       Uri.parse('$_baseUrl/signup'),
-
-      Uri.parse('$baseUrl/signup'),
-main
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'email': email,
@@ -52,19 +37,17 @@ main
   }
 
   Future<String> resolveFriendCode(String code) async {
-codex/build-cora-cross-platform-chat-app-ulpmvz
     final response = await http.get(Uri.parse('$_baseUrl/friendcode/$code'));
-
-    final response = await http.get(Uri.parse('$baseUrl/friendcode/$code'));
- main
     if (response.statusCode != 200) {
       throw Exception('Friend code not found');
     }
     return (jsonDecode(response.body) as Map<String, dynamic>)['matrix_user_id'] as String;
   }
-codex/build-cora-cross-platform-chat-app-ulpmvz
 
-  Future<void> createFriendRequest({required String fromMatrixUserId, required String toMatrixUserId}) async {
+  Future<void> createFriendRequest({
+    required String fromMatrixUserId,
+    required String toMatrixUserId,
+  }) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/friend-requests'),
       headers: {'Content-Type': 'application/json'},
@@ -77,6 +60,4 @@ codex/build-cora-cross-platform-chat-app-ulpmvz
       throw Exception('Failed to send friend request');
     }
   }
-
-main
 }

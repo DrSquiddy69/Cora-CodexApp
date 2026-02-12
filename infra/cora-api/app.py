@@ -61,8 +61,6 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=8)
 
 
-codex/build-cora-cross-platform-chat-app-ulpmvz
-main
 class FriendRequestCreate(BaseModel):
     from_matrix_user_id: str
     to_matrix_user_id: str
@@ -90,7 +88,6 @@ def generate_friend_code(conn: sqlite3.Connection) -> str:
             return code
 
 
-codex/build-cora-cross-platform-chat-app-ulpmvz
 def safe_user_dict(row: sqlite3.Row) -> dict:
     return {
         'email': row['email'],
@@ -102,7 +99,6 @@ def safe_user_dict(row: sqlite3.Row) -> dict:
     }
 
 
-main
 @app.on_event('startup')
 def startup() -> None:
     init_db()
@@ -138,19 +134,8 @@ def signup(payload: SignupRequest) -> dict:
             ),
         )
 
-codex/build-cora-cross-platform-chat-app-ulpmvz
         row = conn.execute('SELECT * FROM users WHERE email = ?', (payload.email,)).fetchone()
         return safe_user_dict(row)
-
-        return {
-            'email': payload.email,
-            'friend_code': friend_code,
-            'matrix_user_id': matrix_user_id,
-            'display_name': payload.display_name,
-            'avatar_url': None,
-            'bio': '',
-        }
-main
 
 
 @app.post('/login')
@@ -159,7 +144,6 @@ def login(payload: LoginRequest) -> dict:
         row = conn.execute('SELECT * FROM users WHERE email = ?', (payload.email,)).fetchone()
         if not row or row['password_hash'] != hash_password(payload.password):
             raise HTTPException(status_code=401, detail='Invalid credentials')
-codex/build-cora-cross-platform-chat-app-ulpmvz
         return safe_user_dict(row)
 
 
@@ -170,9 +154,6 @@ def me(email: EmailStr) -> dict:
         if not row:
             raise HTTPException(status_code=404, detail='User not found')
         return safe_user_dict(row)
-
-        return dict(row)
-main
 
 
 @app.get('/friendcode/{friend_code}')
@@ -190,9 +171,6 @@ def lookup(friend_code: str) -> dict:
         return dict(row)
 
 
-codex/build-cora-cross-platform-chat-app-ulpmvz
-
-main
 @app.post('/friend-requests', status_code=201)
 def create_friend_request(payload: FriendRequestCreate) -> dict:
     with db() as conn:
@@ -253,8 +231,4 @@ def update_profile(email: EmailStr, payload: ProfileUpdateRequest) -> dict:
         row = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail='User not found')
-codex/build-cora-cross-platform-chat-app-ulpmvz
         return safe_user_dict(row)
-
-        return dict(row)
-main

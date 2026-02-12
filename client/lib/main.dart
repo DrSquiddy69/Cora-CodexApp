@@ -3,9 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'screens/about_screen.dart';
-codex/build-cora-cross-platform-chat-app-ulpmvz
 import 'services/api_config.dart';
- main
 import 'screens/chat_screen.dart';
 import 'screens/chats_list_screen.dart';
 import 'screens/friends_screen.dart';
@@ -17,12 +15,9 @@ import 'screens/settings_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/welcome_screen.dart';
 
-codex/build-cora-cross-platform-chat-app-ulpmvz
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiConfig.instance.load();
-void main() {
-main
   runApp(const CoraApp());
 }
 

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 
 import '../main.dart';
-codex/build-cora-cross-platform-chat-app-ulpmvz
 import '../services/api_config.dart';
 import '../widgets/cora_scaffold.dart';
 
@@ -35,26 +34,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   @override
-import '../widgets/cora_scaffold.dart';
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-main
   Widget build(BuildContext context) {
     return CoraScaffold(
       title: 'Settings',
       currentIndex: 3,
       child: ListView(
         children: [
-codex/build-cora-cross-platform-chat-app-ulpmvz
           GlassCard(
             child: Column(
               children: [
-                TextField(controller: _displayName, decoration: const InputDecoration(labelText: 'Display name')),
-                TextField(controller: _bio, decoration: const InputDecoration(labelText: 'Bio')),
-                TextField(controller: _avatar, decoration: const InputDecoration(labelText: 'Avatar URL')),
+                TextField(
+                  controller: _displayName,
+                  decoration: const InputDecoration(labelText: 'Display name'),
+                ),
+                TextField(
+                  controller: _bio,
+                  decoration: const InputDecoration(labelText: 'Bio'),
+                ),
+                TextField(
+                  controller: _avatar,
+                  decoration: const InputDecoration(labelText: 'Avatar URL'),
+                ),
                 TextField(
                   controller: _apiBaseUrl,
                   decoration: const InputDecoration(
@@ -69,20 +69,10 @@ codex/build-cora-cross-platform-chat-app-ulpmvz
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(_status),
                   ),
-          const GlassCard(
-            child: Column(
-              children: [
-                TextField(decoration: InputDecoration(labelText: 'Display name')),
-                TextField(decoration: InputDecoration(labelText: 'Bio')),
-                TextField(decoration: InputDecoration(labelText: 'Avatar URL')),
-                SizedBox(height: 8),
-                Text('Default: E2EE enabled for DMs and private groups.'),
-main
               ],
             ),
           ),
           const SizedBox(height: 12),
-codex/build-cora-cross-platform-chat-app-ulpmvz
           FilledButton(
             onPressed: () async {
               await ApiConfig.instance.saveBaseUrl(_apiBaseUrl.text);
@@ -91,8 +81,6 @@ codex/build-cora-cross-platform-chat-app-ulpmvz
             },
             child: const Text('Save changes'),
           ),
-          FilledButton(onPressed: () {}, child: const Text('Save changes')),
-main
           OutlinedButton(
             onPressed: () => Navigator.pushNamed(context, '/about'),
             child: const Text('About / Legal'),
