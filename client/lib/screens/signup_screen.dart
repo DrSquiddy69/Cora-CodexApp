@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/glass_surface.dart';
 import '../services/api_config.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
+import '../theme/cora_theme.dart';
+import '../widgets/glass_surface.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -36,6 +37,32 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {});
   }
 
+  Future<void> _signup() async {
+    setState(() => _status = '');
+
+    try {
+      final user = await _api.signup(
+        _email.text,
+        _password.text,
+        _displayName.text,
+      );
+
+      await Session.setCurrentUser(user);
+      if (!mounted) return;
+
+      setState(() => _status = 'Friend code: ${user.friendCode}');
+
+      // After signup, go to Home (your "Welcome to Cora!" + patch notes screen).
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (_) {
+      if (!mounted) return;
+      setState(
+        () => _status =
+            'Signup failed. Not connected? Tap Connect in the top-right.',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LiquidGlassBackground(
@@ -53,37 +80,39 @@ class _SignupScreenState extends State<SignupScreen> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: GlassSurface(
+          padding: const EdgeInsets.all(CoraTokens.spaceMd),
+          child: GlassCard(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Server: $_serverLabel', style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 8),
-                TextField(controller: _displayName, decoration: const InputDecoration(labelText: 'Display name')),
-                TextField(controller: _email, decoration: const InputDecoration(labelText: 'Email')),
+                Text(
+                  'Server: $_serverLabel',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: CoraTokens.spaceSm),
+                TextField(
+                  controller: _displayName,
+                  decoration: const InputDecoration(labelText: 'Display name'),
+                ),
+                TextField(
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
                 TextField(
                   controller: _password,
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: CoraTokens.spaceMd),
                 FilledButton(
-                  onPressed: () async {
-                    try {
-                      final user = await _api.signup(_email.text, _password.text, _displayName.text);
-                      await Session.setCurrentUser(user);
-                      setState(() => _status = 'Friend code: ${user.friendCode}');
-                      if (mounted) Navigator.pushReplacementNamed(context, '/');
-                    } catch (_) {
-                      setState(
-                        () => _status =
-                            'Signup failed. Not connected? Tap Connect in the top-right.',
-                      );
-                    }
-                  },
+                  onPressed: _signup,
                   child: const Text('Create account'),
                 ),
-                if (_status.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_status)),
+                if (_status.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: CoraTokens.spaceSm),
+                    child: Text(_status),
+                  ),
               ],
             ),
           ),

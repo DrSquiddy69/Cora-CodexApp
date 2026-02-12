@@ -11,10 +11,9 @@ class ChatsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CoraScaffold(
       title: 'Chats',
-      currentIndex: 1,
-      sidePanel: const _ConversationListPanel(),
+      currentIndex: 0,
       child: Center(
-        child: GlassSurface(
+        child: GlassCard(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -40,14 +39,22 @@ class _ConversationListPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Conversations', style: TextStyle(fontWeight: FontWeight.w600)),
+        const Text(
+          'Conversations',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: CoraTokens.spaceMd),
         Container(
           padding: const EdgeInsets.all(CoraTokens.spaceSm),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(CoraTokens.radiusMd),
-            border: Border(left: BorderSide(color: const Color(0xFF44D8FF).withValues(alpha: 0.8), width: 3)),
+            border: Border(
+              left: BorderSide(
+                color: const Color(0xFF44D8FF).withValues(alpha: 0.8),
+                width: 3,
+              ),
+            ),
           ),
           child: const Text('No active conversations'),
         ),

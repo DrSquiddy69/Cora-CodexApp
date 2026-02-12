@@ -25,20 +25,30 @@ class CoraScaffold extends StatelessWidget {
 
   void _switchTab(BuildContext context, int index) {
     if (index == currentIndex) return;
-    final next = switch (index) {
-      0 => const HomeScreen(),
-      1 => const ChatsListScreen(),
-      2 => const FriendsScreen(),
-      _ => const SettingsScreen(),
-    };
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => next,
+        pageBuilder: (_, __, ___) => _destinationScreen(index),
         transitionDuration: const Duration(milliseconds: 180),
-        transitionsBuilder: (_, animation, __, page) => FadeTransition(opacity: animation, child: page),
+        reverseTransitionDuration: const Duration(milliseconds: 180),
+        transitionsBuilder: (_, animation, __, page) =>
+            FadeTransition(opacity: animation, child: page),
       ),
     );
+  }
+
+  Widget _destinationScreen(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const ChatsListScreen();
+      case 2:
+        return const FriendsScreen();
+      case 3:
+      default:
+        return const SettingsScreen();
+    }
   }
 
   @override
@@ -86,11 +96,17 @@ class CoraScaffold extends StatelessWidget {
             child: desktop
                 ? Row(
                     children: [
-                      _NavRail(currentIndex: currentIndex, onTap: (i) => _switchTab(context, i)),
+                      _NavRail(
+                        currentIndex: currentIndex,
+                        onTap: (i) => _switchTab(context, i),
+                      ),
                       const SizedBox(width: CoraTokens.spaceMd),
                       SizedBox(
                         width: 260,
-                        child: GlassSurface(opacity: 0.09, child: sidePanel ?? const _ListPlaceholder()),
+                        child: GlassSurface(
+                          opacity: 0.09,
+                          child: sidePanel ?? const _ListPlaceholder(),
+                        ),
                       ),
                       const SizedBox(width: CoraTokens.spaceMd),
                       Expanded(
@@ -106,9 +122,20 @@ class CoraScaffold extends StatelessWidget {
                 : tablet
                     ? Row(
                         children: [
-                          _NavRail(currentIndex: currentIndex, onTap: (i) => _switchTab(context, i), extended: false),
+                          _NavRail(
+                            currentIndex: currentIndex,
+                            onTap: (i) => _switchTab(context, i),
+                            extended: false,
+                          ),
                           const SizedBox(width: CoraTokens.spaceMd),
-                          Expanded(child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 820), child: mainPanel))),
+                          Expanded(
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 820),
+                                child: mainPanel,
+                              ),
+                            ),
+                          ),
                         ],
                       )
                     : mainPanel,
@@ -119,10 +146,22 @@ class CoraScaffold extends StatelessWidget {
                 selectedIndex: currentIndex,
                 onDestinationSelected: (index) => _switchTab(context, index),
                 destinations: const [
-                  NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
-                  NavigationDestination(icon: Icon(Icons.chat_bubble_outline), label: 'Chats'),
-                  NavigationDestination(icon: Icon(Icons.people_outline), label: 'Friends'),
-                  NavigationDestination(icon: Icon(Icons.settings_outlined), label: 'Settings'),
+                  NavigationDestination(
+                    icon: Icon(Icons.home_outlined),
+                    label: 'Home',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.chat_bubble_outline),
+                    label: 'Chats',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.people_outline),
+                    label: 'Friends',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings_outlined),
+                    label: 'Settings',
+                  ),
                 ],
               )
             : null,
@@ -132,7 +171,11 @@ class CoraScaffold extends StatelessWidget {
 }
 
 class _NavRail extends StatelessWidget {
-  const _NavRail({required this.currentIndex, required this.onTap, this.extended = true});
+  const _NavRail({
+    required this.currentIndex,
+    required this.onTap,
+    this.extended = true,
+  });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -148,10 +191,22 @@ class _NavRail extends StatelessWidget {
         onDestinationSelected: onTap,
         indicatorColor: const Color(0xFF3ED9FF).withValues(alpha: 0.25),
         destinations: const [
-          NavigationRailDestination(icon: Icon(Icons.home_outlined), label: Text('Home')),
-          NavigationRailDestination(icon: Icon(Icons.chat_bubble_outline), label: Text('Chats')),
-          NavigationRailDestination(icon: Icon(Icons.people_outline), label: Text('Friends')),
-          NavigationRailDestination(icon: Icon(Icons.settings_outlined), label: Text('Settings')),
+          NavigationRailDestination(
+            icon: Icon(Icons.home_outlined),
+            label: Text('Home'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: Text('Chats'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.people_outline),
+            label: Text('Friends'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.settings_outlined),
+            label: Text('Settings'),
+          ),
         ],
       ),
     );

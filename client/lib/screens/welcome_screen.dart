@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/glass_surface.dart';
 import '../services/api_config.dart';
+import '../theme/cora_theme.dart';
+import '../widgets/glass_surface.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -38,22 +39,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         body: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: GlassSurface(
+              padding: const EdgeInsets.all(CoraTokens.spaceLg),
+              child: GlassCard(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.forum_rounded, size: 74, color: Color(0xFF81EDFF)),
-                    const SizedBox(height: 16),
+                    const Icon(
+                      Icons.forum_rounded,
+                      size: 74,
+                      color: Color(0xFF81EDFF),
+                    ),
+                    const SizedBox(height: CoraTokens.spaceMd),
                     Text('Cora', style: Theme.of(context).textTheme.headlineMedium),
-                    const SizedBox(height: 8),
-                    Text('Server: $_serverLabel', style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: CoraTokens.spaceSm),
+                    Text(
+                      'Server: $_serverLabel',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: CoraTokens.spaceSm),
                     const Text(
                       'Private-first chat for friends and invite-only groups.',
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: CoraTokens.spaceLg),
                     FilledButton(
                       onPressed: () => Navigator.pushNamed(context, '/signup'),
                       child: const Text('Create account'),

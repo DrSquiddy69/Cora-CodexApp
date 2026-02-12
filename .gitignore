@@ -1,0 +1,4 @@
+# Docker runtime data (do NOT commit)
+infra/matrix/data/
+infra/cora-api/cora.db
+infra/cora-api/*.db

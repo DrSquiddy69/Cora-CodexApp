@@ -15,9 +15,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
   final _messages = <String>[];
+
   final _inputFocus = FocusNode();
 
-  bool get _isMobile => defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
+  bool get _isMobile =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 
   @override
   void dispose() {
@@ -27,25 +30,36 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    if (_controller.text.trim().isEmpty) return;
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+
     setState(() {
-      _messages.add(_controller.text.trim());
+      _messages.add(text);
       _controller.clear();
     });
+
     _inputFocus.requestFocus();
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
-    if (_isMobile || event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.enter) {
+    // Don't override mobile IME behavior.
+    if (_isMobile) return KeyEventResult.ignored;
+
+    // Only handle key-down Enter presses.
+    if (event is! KeyDownEvent ||
+        event.logicalKey != LogicalKeyboardKey.enter) {
       return KeyEventResult.ignored;
     }
 
+    // Shift+Enter => newline
     if (HardwareKeyboard.instance.isShiftPressed) {
       final value = _controller.value;
       final text = value.text;
       final selection = value.selection;
+
       final start = selection.start >= 0 ? selection.start : text.length;
       final end = selection.end >= 0 ? selection.end : text.length;
+
       final updated = text.replaceRange(start, end, '\n');
       _controller.value = TextEditingValue(
         text: updated,
@@ -54,22 +68,27 @@ class _ChatScreenState extends State<ChatScreen> {
       return KeyEventResult.handled;
     }
 
+    // Enter => send
     _sendMessage();
     return KeyEventResult.handled;
   }
 
   @override
   Widget build(BuildContext context) {
-    final desktopEmojiHint = defaultTargetPlatform == TargetPlatform.windows ||
-            defaultTargetPlatform == TargetPlatform.macOS ||
-            defaultTargetPlatform == TargetPlatform.linux
-        ? 'Tip: press Win + . for emoji'
-        : 'Use your keyboard emoji button';
+    final desktopEmojiHint =
+        defaultTargetPlatform == TargetPlatform.windows ||
+                defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.linux
+            ? 'Tip: press Win + . for emoji'
+            : 'Use your keyboard emoji button';
 
     return LiquidGlassBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('DM chat')),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: const Text('DM chat'),
+        ),
         body: Column(
           children: [
             Expanded(
@@ -79,7 +98,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemBuilder: (context, index) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Align(
-                    alignment: index.isEven ? Alignment.centerLeft : Alignment.centerRight,
+                    alignment: index.isEven
+                        ? Alignment.centerLeft
+                        : Alignment.centerRight,
                     child: GlassSurface(child: Text(_messages[index])),
                   ),
                 ),
@@ -91,7 +112,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Tooltip(
                     message: desktopEmojiHint,
-                    child: IconButton(onPressed: () {}, icon: const Icon(Icons.emoji_emotions_outlined)),
+                    child: IconButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(desktopEmojiHint),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.emoji_emotions_outlined),
+                    ),
                   ),
                   Expanded(
                     child: Focus(
@@ -101,11 +132,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         focusNode: _inputFocus,
                         minLines: 1,
                         maxLines: 5,
-                        decoration: const InputDecoration(hintText: 'Type a message'),
+                        decoration:
+                            const InputDecoration(hintText: 'Type a message'),
                       ),
                     ),
                   ),
-                  IconButton(onPressed: _sendMessage, icon: const Icon(Icons.send)),
+                  IconButton(
+                    onPressed: _sendMessage,
+                    icon: const Icon(Icons.send),
+                  ),
                 ],
               ),
             ),
