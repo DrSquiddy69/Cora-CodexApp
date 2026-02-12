@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
+import '../widgets/glass_surface.dart';
 
 class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
