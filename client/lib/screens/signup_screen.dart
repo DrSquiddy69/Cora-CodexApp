@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../services/cora_api_service.dart';
+import '../services/session.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -39,6 +40,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 FilledButton(
                   onPressed: () async {
                     final user = await _api.signup(_email.text, _password.text, _displayName.text);
+                    Session.currentUser = user;
                     setState(() => _status = 'Friend code: ${user.friendCode}');
                     if (mounted) Navigator.pushReplacementNamed(context, '/chats');
                   },

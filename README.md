@@ -37,6 +37,10 @@ docker build -t cora-api .
 docker run --rm -p 8080:8080 cora-api
 ```
 
+## Auth hashing note
+- `cora-api` now stores password hashes using Argon2 (`passlib[argon2]`) instead of raw SHA-256.
+- Existing users in a previously-created dev SQLite DB may not be able to log in until those accounts are recreated (or the DB is reset).
+
 ## Core feature coverage (v1.0 scaffold)
 - Email/password signup and login via Cora UI and `cora-api`.
 - Generated unique 5-char friend codes using unambiguous charset (`A-Z` + `2-9`, excluding `I/O/1/0`).
