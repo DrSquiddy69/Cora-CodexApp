@@ -1,16 +1,24 @@
 import hashlib
 import secrets
 import sqlite3
+import uuid
 from pathlib import Path
+import shutil
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from passlib.hash import argon2
 from pydantic import BaseModel, EmailStr, Field
+from fastapi.staticfiles import StaticFiles
 
-DB_PATH = Path(__file__).resolve().parent / 'cora.db'
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / 'cora.db'
+UPLOADS_DIR = BASE_DIR / 'uploads'
 SAFE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 app = FastAPI(title='cora-api', version='1.0.0')
+UPLOADS_DIR.mkdir(exist_ok=True)
+app.mount('/uploads', StaticFiles(directory=UPLOADS_DIR), name='uploads')
 
 
 def db() -> sqlite3.Connection:
@@ -77,7 +85,19 @@ class ProfileUpdateRequest(BaseModel):
 
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return argon2.hash(password)
+
+
+def verify_password(password: str, encoded_hash: str) -> bool:
+    try:
+        return argon2.verify(password, encoded_hash)
+    except ValueError:
+        return False
+
+
+def build_matrix_user_id(email: str) -> str:
+    matrix_localpart = f"u_{hashlib.sha256(email.lower().strip().encode('utf-8')).hexdigest()[:12]}"
+    return f'@{matrix_localpart}:cora.local'
 
 
 def generate_friend_code(conn: sqlite3.Connection) -> str:
@@ -117,22 +137,24 @@ def signup(payload: SignupRequest) -> dict:
             raise HTTPException(status_code=409, detail='Email already exists')
 
         friend_code = generate_friend_code(conn)
-        localpart = payload.email.split('@')[0].replace('.', '_').replace('+', '_')
-        matrix_user_id = f'@{localpart}:cora.local'
+        matrix_user_id = build_matrix_user_id(payload.email)
 
-        conn.execute(
-            '''
-            INSERT INTO users (email, password_hash, friend_code, matrix_user_id, display_name)
-            VALUES (?, ?, ?, ?, ?)
-            ''',
-            (
-                payload.email,
-                hash_password(payload.password),
-                friend_code,
-                matrix_user_id,
-                payload.display_name,
-            ),
-        )
+        try:
+            conn.execute(
+                '''
+                INSERT INTO users (email, password_hash, friend_code, matrix_user_id, display_name)
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                (
+                    payload.email,
+                    hash_password(payload.password),
+                    friend_code,
+                    matrix_user_id,
+                    payload.display_name,
+                ),
+            )
+        except sqlite3.IntegrityError as exc:
+            raise HTTPException(status_code=409, detail='Account already exists') from exc
 
         row = conn.execute('SELECT * FROM users WHERE email = ?', (payload.email,)).fetchone()
         return safe_user_dict(row)
@@ -142,7 +164,7 @@ def signup(payload: SignupRequest) -> dict:
 def login(payload: LoginRequest) -> dict:
     with db() as conn:
         row = conn.execute('SELECT * FROM users WHERE email = ?', (payload.email,)).fetchone()
-        if not row or row['password_hash'] != hash_password(payload.password):
+        if not row or not verify_password(payload.password, row['password_hash']):
             raise HTTPException(status_code=401, detail='Invalid credentials')
         return safe_user_dict(row)
 
@@ -232,3 +254,19 @@ def update_profile(email: EmailStr, payload: ProfileUpdateRequest) -> dict:
         if not row:
             raise HTTPException(status_code=404, detail='User not found')
         return safe_user_dict(row)
+
+
+@app.post('/upload/avatar', status_code=201)
+async def upload_avatar(request: Request, file: UploadFile = File(...)) -> dict:
+    suffix = Path(file.filename or '').suffix.lower()
+    if suffix not in {'.png', '.jpg', '.jpeg', '.webp', '.gif'}:
+        raise HTTPException(status_code=400, detail='Unsupported image format')
+
+    filename = f"{uuid.uuid4().hex}{suffix}"
+    destination = UPLOADS_DIR / filename
+
+    with destination.open('wb') as output:
+        shutil.copyfileobj(file.file, output)
+
+    base_url = str(request.base_url).rstrip('/')
+    return {'avatar_url': f'{base_url}/uploads/{filename}'}

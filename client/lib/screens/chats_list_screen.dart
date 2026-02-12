@@ -11,27 +11,20 @@ class ChatsListScreen extends StatelessWidget {
     return CoraScaffold(
       title: 'Chats',
       currentIndex: 0,
-      actions: [
-        IconButton(
-          onPressed: () => Navigator.pushNamed(context, '/group-create'),
-          icon: const Icon(Icons.group_add_outlined),
+      child: Center(
+        child: GlassCard(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('No messages yet'),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () => Navigator.pushNamed(context, '/chat'),
+                child: const Text('Start DM'),
+              ),
+            ],
+          ),
         ),
-      ],
-      child: ListView(
-        children: [
-          const GlassCard(child: ListTile(title: Text('DM: Nova'), subtitle: Text('Encrypted chat ready'))),
-          const SizedBox(height: 12),
-          const GlassCard(child: ListTile(title: Text('Group: Project Cora'), subtitle: Text('Invite-only room'))),
-          const SizedBox(height: 18),
-          FilledButton(
-            onPressed: () => Navigator.pushNamed(context, '/chat'),
-            child: const Text('Open DM sample'),
-          ),
-          OutlinedButton(
-            onPressed: () => Navigator.pushNamed(context, '/group-chat'),
-            child: const Text('Open Group sample'),
-          ),
-        ],
       ),
     );
   }
