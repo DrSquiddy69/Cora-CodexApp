@@ -16,7 +16,7 @@ class AppUser {
   final String? avatarUrl;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
-        email: json['email'] as String,
+        email: json['email'] as String? ?? '',
         friendCode: json['friend_code'] as String,
         matrixUserId: json['matrix_user_id'] as String,
         displayName: json['display_name'] as String? ?? '',

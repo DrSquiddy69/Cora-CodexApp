@@ -119,6 +119,16 @@ def safe_user_dict(row: sqlite3.Row) -> dict:
     }
 
 
+def public_user_dict(row: sqlite3.Row) -> dict:
+    return {
+        'friend_code': row['friend_code'],
+        'matrix_user_id': row['matrix_user_id'],
+        'display_name': row['display_name'],
+        'avatar_url': row['avatar_url'],
+        'bio': row['bio'],
+    }
+
+
 @app.on_event('startup')
 def startup() -> None:
     init_db()
@@ -195,7 +205,20 @@ def lookup(friend_code: str) -> dict:
 
 @app.post('/friend-requests', status_code=201)
 def create_friend_request(payload: FriendRequestCreate) -> dict:
+    if payload.from_matrix_user_id == payload.to_matrix_user_id:
+        raise HTTPException(status_code=400, detail='You cannot friend yourself')
+
     with db() as conn:
+        existing = conn.execute(
+            '''
+            SELECT id FROM friend_requests
+            WHERE from_matrix_user_id = ? AND to_matrix_user_id = ?
+            ''',
+            (payload.from_matrix_user_id, payload.to_matrix_user_id),
+        ).fetchone()
+        if existing:
+            raise HTTPException(status_code=409, detail='Friend request already exists')
+
         try:
             conn.execute(
                 '''
@@ -231,6 +254,15 @@ def update_friend_request(request_id: int, payload: FriendRequestUpdate) -> dict
         if not row:
             raise HTTPException(status_code=404, detail='Request not found')
     return dict(row)
+
+
+@app.get('/profile/public/{matrix_user_id}')
+def public_profile(matrix_user_id: str) -> dict:
+    with db() as conn:
+        row = conn.execute('SELECT * FROM users WHERE matrix_user_id = ?', (matrix_user_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail='User not found')
+        return public_user_dict(row)
 
 
 @app.patch('/profile/{email}')

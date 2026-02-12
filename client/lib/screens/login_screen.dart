@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
 import '../services/api_config.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
+import '../theme/cora_theme.dart';
+import '../widgets/glass_surface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,6 +35,27 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {});
   }
 
+  Future<void> _login() async {
+    setState(() => _status = '');
+
+    try {
+      final user = await _api.login(_email.text, _password.text);
+      await Session.setCurrentUser(user);
+      if (!mounted) return;
+
+      setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
+
+      // After login, go to Home (your "Welcome to Cora!" + patch notes screen).
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (_) {
+      if (!mounted) return;
+      setState(
+        () => _status =
+            'Login failed. Not connected? Tap Connect in the top-right.',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LiquidGlassBackground(
@@ -51,15 +73,16 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(CoraTokens.spaceMd),
           child: GlassCard(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Server: $_serverLabel',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: CoraTokens.spaceSm),
                 TextField(
                   controller: _email,
                   decoration: const InputDecoration(labelText: 'Email'),
@@ -69,31 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: CoraTokens.spaceMd),
                 FilledButton(
-                  onPressed: () async {
-                    try {
-                      final user = await _api.login(_email.text, _password.text);
-                      await Session.setCurrentUser(user);
-                      if (!mounted) return;
-
-                      setState(() => _status =
-                          'Welcome ${user.displayName} (${user.friendCode})');
-
-                      Navigator.pushReplacementNamed(context, '/chats');
-                    } catch (_) {
-                      if (!mounted) return;
-                      setState(
-                        () => _status =
-                            'Login failed. Not connected? Tap Connect in the top-right.',
-                      );
-                    }
-                  },
+                  onPressed: _login,
                   child: const Text('Log in'),
                 ),
                 if (_status.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.only(top: CoraTokens.spaceSm),
                     child: Text(_status),
                   ),
               ],

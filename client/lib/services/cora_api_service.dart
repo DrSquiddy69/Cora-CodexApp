@@ -122,7 +122,7 @@ class CoraApiService {
       }),
     );
     if (response.statusCode != 201) {
-      throw Exception('Failed to send friend request');
+      throw Exception('Failed to send friend request: ${response.body}');
     }
   }
 

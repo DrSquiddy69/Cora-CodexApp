@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
+import '../theme/cora_theme.dart';
 import '../widgets/cora_scaffold.dart';
+import '../widgets/glass_surface.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -71,6 +72,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
     try {
       final matrixId = await _api.resolveFriendCode(normalizedCode);
 
+      // Prevent sending a request to yourself (frontend guard).
+      if (matrixId == currentUser.matrixUserId) {
+        setState(() => _result = 'You cannot send a friend request to yourself.');
+        return;
+      }
+
       await _api.createFriendRequest(
         fromMatrixUserId: currentUser.matrixUserId,
         toMatrixUserId: matrixId,
@@ -101,7 +108,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Widget build(BuildContext context) {
     return CoraScaffold(
       title: 'Friends',
-      currentIndex: 1,
+      currentIndex: 2,
+      sidePanel: const _FriendsSidePanel(),
       child: ListView(
         children: [
           GlassCard(
@@ -109,25 +117,29 @@ class _FriendsScreenState extends State<FriendsScreen> {
               children: [
                 TextField(
                   controller: _code,
-                  decoration:
-                      const InputDecoration(labelText: 'Add by Friend Code'),
+                  decoration: const InputDecoration(
+                    labelText: 'Add by Friend Code',
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: CoraTokens.spaceMd),
                 FilledButton(
                   onPressed: _sendFriendRequest,
                   child: const Text('Send friend request'),
                 ),
-                if (_result.isNotEmpty) Text(_result),
+                if (_result.isNotEmpty) ...[
+                  const SizedBox(height: CoraTokens.spaceSm),
+                  Text(_result),
+                ],
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: CoraTokens.spaceMd),
           GlassCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Pending requests'),
-                const SizedBox(height: 8),
+                const SizedBox(height: CoraTokens.spaceSm),
                 if (_loadingRequests)
                   const Center(
                     child: Padding(
@@ -168,6 +180,32 @@ class _FriendsScreenState extends State<FriendsScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _FriendsSidePanel extends StatelessWidget {
+  const _FriendsSidePanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('People', style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: CoraTokens.spaceMd),
+        Container(
+          padding: const EdgeInsets.all(CoraTokens.spaceSm),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(CoraTokens.radiusMd),
+            border: Border(
+              left: BorderSide(color: const Color(0xFF44D8FF), width: 3),
+            ),
+          ),
+          child: const Text('Use friend code to connect'),
+        ),
+      ],
     );
   }
 }
