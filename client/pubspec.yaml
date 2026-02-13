@@ -12,12 +12,15 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.2
   matrix: ^0.25.11
-  emoji_picker_flutter: ^2.2.0
   url_launcher: ^6.3.1
   shared_preferences: ^2.3.3
+  image_picker: ^1.1.2
+  file_picker: ^8.1.6
 
 dev_dependencies:
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/patch_notes.json
