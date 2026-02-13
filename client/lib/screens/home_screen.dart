@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _notes;
+
   bool _featuresExpanded = false;
   bool _fixesExpanded = false;
   bool _summaryExpanded = true;
@@ -32,7 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _notes = jsonDecode(raw) as Map<String, dynamic>);
   }
 
-  Widget _buildCard(String title, List<dynamic> lines, {bool expanded = true, ValueChanged<bool>? onTap}) {
+  Widget _buildCard(
+    String title,
+    List<dynamic> lines, {
+    bool expanded = true,
+    ValueChanged<bool>? onTap,
+  }) {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,26 +50,41 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
 
+    // Desktop cards (no expand/collapse)
     if (onTap == null) {
-      return GlassSurface(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title), const SizedBox(height: 8), content]),
+      return GlassCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: CoraTokens.spaceSm),
+            content,
+          ],
+        ),
       );
     }
 
-    return GlassSurface(
+    // Mobile cards (expand/collapse)
+    return GlassCard(
       child: ExpansionTile(
-        title: Text(title),
+        tilePadding: EdgeInsets.zero,
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         initiallyExpanded: expanded,
         onExpansionChanged: onTap,
-        children: [Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: content)],
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: CoraTokens.spaceSm),
+            child: content,
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final mobile = MediaQuery.sizeOf(context).width < 600;
     final notes = _notes;
+    final mobile = MediaQuery.sizeOf(context).width < 600;
 
     return CoraScaffold(
       title: 'Welcome to Cora!',
@@ -74,37 +95,56 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text('Version ${notes['version']} • ${notes['date']}'),
                 const SizedBox(height: CoraTokens.spaceMd),
-                if (mobile)
-                  ...[
-                    _buildCard(
-                      'Feature Updates',
-                      notes['features'] as List<dynamic>,
-                      expanded: _featuresExpanded,
-                      onTap: (value) => setState(() => _featuresExpanded = value),
-                    ),
-                    const SizedBox(height: CoraTokens.spaceMd),
-                    _buildCard(
-                      'Bug Fixes',
-                      notes['fixes'] as List<dynamic>,
-                      expanded: _fixesExpanded,
-                      onTap: (value) => setState(() => _fixesExpanded = value),
-                    ),
-                    const SizedBox(height: CoraTokens.spaceMd),
-                    _buildCard(
-                      'Summary',
-                      notes['summary'] as List<dynamic>,
-                      expanded: _summaryExpanded,
-                      onTap: (value) => setState(() => _summaryExpanded = value),
-                    ),
-                  ]
-                else
+                if (mobile) ...[
+                  _buildCard(
+                    'Feature Updates',
+                    notes['features'] as List<dynamic>,
+                    expanded: _featuresExpanded,
+                    onTap: (value) => setState(() => _featuresExpanded = value),
+                  ),
+                  const SizedBox(height: CoraTokens.spaceMd),
+                  _buildCard(
+                    'Bug Fixes',
+                    notes['fixes'] as List<dynamic>,
+                    expanded: _fixesExpanded,
+                    onTap: (value) => setState(() => _fixesExpanded = value),
+                  ),
+                  const SizedBox(height: CoraTokens.spaceMd),
+                  _buildCard(
+                    'Summary',
+                    notes['summary'] as List<dynamic>,
+                    expanded: _summaryExpanded,
+                    onTap: (value) => setState(() => _summaryExpanded = value),
+                  ),
+                ] else
                   Wrap(
                     spacing: CoraTokens.spaceMd,
                     runSpacing: CoraTokens.spaceMd,
                     children: [
-                      SizedBox(width: 240, child: _buildCard('Feature Updates', notes['features'] as List<dynamic>)),
-                      SizedBox(width: 240, child: _buildCard('Bug Fixes', notes['fixes'] as List<dynamic>)),
-                      SizedBox(width: 240, child: _buildCard('Summary', notes['summary'] as List<dynamic>)),
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Feature Updates',
+                          notes['features'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Bug Fixes',
+                          notes['fixes'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Summary',
+                          notes['summary'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
                     ],
                   ),
               ],

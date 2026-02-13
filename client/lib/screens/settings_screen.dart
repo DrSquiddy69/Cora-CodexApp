@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_config.dart';
+import '../services/app_settings.dart';
 import '../services/session.dart';
 import '../theme/cora_theme.dart';
 import '../widgets/cora_scaffold.dart';
@@ -15,6 +16,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _apiBaseUrl;
+  bool _enterToSend = AppSettings.enterToSend;
   String _status = '';
 
   @override
@@ -29,22 +31,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  Future<void> _saveApiUrl() async {
+    final url = _apiBaseUrl.text.trim();
+    await ApiConfig.instance.saveBaseUrl(url);
+    if (!mounted) return;
+    setState(() => _status = 'Saved API URL');
+  }
+
+  Future<void> _setEnterToSend(bool value) async {
+    await AppSettings.setEnterToSend(value);
+    if (!mounted) return;
+    setState(() {
+      _enterToSend = value;
+      _status = 'Saved message input preference';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final email = Session.currentUser?.email ?? 'Not signed in';
+    final current = Session.currentUser;
 
     return CoraScaffold(
       title: 'Settings',
       currentIndex: 3,
       child: ListView(
+        padding: const EdgeInsets.all(CoraTokens.spaceMd),
         children: [
-          GlassSurface(
+          GlassCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Account', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: CoraTokens.spaceSm),
-                Text('Email: $email'),
+                Text(current != null ? 'Signed in as: ${current.displayName}' : 'Not signed in'),
+                if (current != null) ...[
+                  const SizedBox(height: CoraTokens.spaceSm),
+                  Text('Friend Code: ${current.friendCode}'),
+                ],
                 const SizedBox(height: CoraTokens.spaceMd),
                 FilledButton.tonal(
                   onPressed: () => Navigator.pushNamed(context, '/profile'),
@@ -53,9 +76,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+
           const SizedBox(height: CoraTokens.spaceMd),
-          GlassSurface(
+
+          GlassCard(
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Enter to send'),
+              subtitle: const Text('Desktop Enter sends, Shift+Enter adds newline.'),
+              value: _enterToSend,
+              onChanged: _setEnterToSend,
+            ),
+          ),
+
+          const SizedBox(height: CoraTokens.spaceMd),
+
+          GlassCard(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(
                   controller: _apiBaseUrl,
@@ -65,18 +103,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: CoraTokens.spaceSm),
-                if (_status.isNotEmpty) Text(_status),
+                FilledButton(
+                  onPressed: _saveApiUrl,
+                  child: const Text('Save settings'),
+                ),
+                if (_status.isNotEmpty) ...[
+                  const SizedBox(height: CoraTokens.spaceSm),
+                  Text(_status),
+                ],
               ],
             ),
-          ),
-          const SizedBox(height: CoraTokens.spaceMd),
-          FilledButton(
-            onPressed: () async {
-              await ApiConfig.instance.saveBaseUrl(_apiBaseUrl.text);
-              if (!mounted) return;
-              setState(() => _status = 'Saved API URL');
-            },
-            child: const Text('Save changes'),
           ),
         ],
       ),

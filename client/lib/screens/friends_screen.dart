@@ -163,13 +163,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.check),
-                            onPressed: () =>
-                                _updateRequest(request.id, 'accepted'),
+                            onPressed: () => _updateRequest(request.id, 'accepted'),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () =>
-                                _updateRequest(request.id, 'denied'),
+                            onPressed: () => _updateRequest(request.id, 'denied'),
                           ),
                         ],
                       ),
@@ -199,8 +197,8 @@ class _FriendsSidePanel extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(CoraTokens.radiusMd),
-            border: Border(
-              left: BorderSide(color: const Color(0xFF44D8FF), width: 3),
+            border: const Border(
+              left: BorderSide(color: Color(0xFF44D8FF), width: 3),
             ),
           ),
           child: const Text('Use friend code to connect'),

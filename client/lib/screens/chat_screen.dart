@@ -6,7 +6,14 @@ import '../theme/cora_theme.dart';
 import '../widgets/glass_surface.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({
+    super.key,
+    this.title = 'Chat',
+    this.enterToSend = true,
+  });
+
+  final String title;
+  final bool enterToSend;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -15,7 +22,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
   final _messages = <String>[];
-
   final _inputFocus = FocusNode();
 
   bool get _isMobile =>
@@ -50,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return KeyEventResult.ignored;
     }
 
-    // Shift+Enter => newline
+    // Shift+Enter => newline (always).
     if (HardwareKeyboard.instance.isShiftPressed) {
       final value = _controller.value;
       final text = value.text;
@@ -67,85 +73,70 @@ class _ChatScreenState extends State<ChatScreen> {
       return KeyEventResult.handled;
     }
 
-    // Enter => send
+    // Enter => send (only if enabled)
+    if (!widget.enterToSend) return KeyEventResult.ignored;
+
     _sendMessage();
     return KeyEventResult.handled;
   }
 
   @override
   Widget build(BuildContext context) {
-    final desktopEmojiHint =
-        defaultTargetPlatform == TargetPlatform.windows ||
-                defaultTargetPlatform == TargetPlatform.macOS ||
-                defaultTargetPlatform == TargetPlatform.linux
-            ? 'Tip: press Win + . for emoji'
-            : 'Use your keyboard emoji button';
-
-    return LiquidGlassBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: const Text('DM chat'),
+    return Column(
+      children: [
+        Expanded(
+          child: _messages.isEmpty
+              ? Center(
+                  child: GlassCard(
+                    child: Text(
+                      'No messages yet. Start chatting!',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(CoraTokens.spaceMd),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Align(
+                      alignment: index.isEven
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
+                      child: GlassCard(child: Text(_messages[index])),
+                    ),
+                  ),
+                ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(CoraTokens.spaceMd),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Align(
-                    alignment: index.isEven
-                        ? Alignment.centerLeft
-                        : Alignment.centerRight,
-                    child: GlassSurface(child: Text(_messages[index])),
+        Padding(
+          padding: const EdgeInsets.all(CoraTokens.spaceMd),
+          child: Row(
+            children: [
+              Expanded(
+                child: Focus(
+                  onKeyEvent: _onKey,
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _inputFocus,
+                    minLines: 1,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: widget.enterToSend
+                        ? TextInputAction.send
+                        : TextInputAction.newline,
+                    onSubmitted: widget.enterToSend ? (_) => _sendMessage() : null,
+                    decoration: const InputDecoration(hintText: 'Message...'),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(CoraTokens.spaceMd),
-              child: Row(
-                children: [
-                  Tooltip(
-                    message: desktopEmojiHint,
-                    child: IconButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(desktopEmojiHint),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.emoji_emotions_outlined),
-                    ),
-                  ),
-                  Expanded(
-                    child: Focus(
-                      onKeyEvent: _onKey,
-                      child: TextField(
-                        controller: _controller,
-                        focusNode: _inputFocus,
-                        minLines: 1,
-                        maxLines: 5,
-                        decoration:
-                            const InputDecoration(hintText: 'Type a message'),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _sendMessage,
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
+              IconButton(
+                onPressed: _sendMessage,
+                icon: const Icon(Icons.send),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

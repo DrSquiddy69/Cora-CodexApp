@@ -50,8 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _status =
-            'Login failed. Not connected? Tap Connect in the top-right.',
+        () => _status = 'Login failed. Not connected? Tap Connect in the top-right.',
       );
     }
   }
