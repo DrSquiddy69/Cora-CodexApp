@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'screens/about_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/chats_list_screen.dart';
-import 'screens/friends_screen.dart';
-import 'screens/group_screen.dart';
 import 'screens/connect_screen.dart';
+import 'screens/friends_screen.dart';
 import 'screens/group_create_screen.dart';
+import 'screens/group_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
@@ -40,6 +41,7 @@ class CoraApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (_) => const CoraShell(),
+        '/home': (_) => const HomeScreen(),
         '/welcome': (_) => const WelcomeScreen(),
         '/connect': (_) => const ConnectScreen(),
         '/signup': (_) => const SignupScreen(),

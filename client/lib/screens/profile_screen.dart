@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/cora_api_service.dart';
 import '../services/session.dart';
 import '../theme/cora_theme.dart';
+import '../widgets/cora_scaffold.dart';
 import '../widgets/glass_surface.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -44,9 +45,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _changePhoto() async {
     try {
       File? selected;
+
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         final picker = ImagePicker();
-        final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+        final file = await picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 85,
+        );
         if (file != null) selected = File(file.path);
       } else {
         final picked = await FilePicker.platform.pickFiles(type: FileType.image);
@@ -63,6 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final uploadedUrl = await _api.uploadAvatar(selected);
       if (!mounted) return;
+
       setState(() {
         _avatarUrl = uploadedUrl;
         _saving = false;
@@ -91,13 +97,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final updated = await _api.updateProfile(
-        email: current.email,
+        email: current.email, // used for auth/lookup, but NOT displayed
         displayName: _displayName.text.trim(),
         bio: _bio.text.trim(),
         avatarUrl: _avatarUrl,
       );
+
       await Session.setCurrentUser(updated);
       if (!mounted) return;
+
       setState(() {
         _saving = false;
         _status = 'Profile saved';
@@ -114,57 +122,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final current = Session.currentUser;
-    return LiquidGlassBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('Profile')),
-        body: ListView(
-          padding: const EdgeInsets.all(CoraTokens.spaceMd),
-          children: [
-            GlassCard(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 38,
-                    backgroundImage:
-                        _avatarUrl != null && _avatarUrl!.isNotEmpty ? NetworkImage(_avatarUrl!) : null,
-                    child: (_avatarUrl == null || _avatarUrl!.isEmpty)
-                        ? const Icon(Icons.person, size: 40)
-                        : null,
+
+    return CoraScaffold(
+      title: 'Profile',
+      currentIndex: 3,
+      child: ListView(
+        padding: const EdgeInsets.all(CoraTokens.spaceMd),
+        children: [
+          GlassCard(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 38,
+                  backgroundImage: _avatarUrl != null && _avatarUrl!.isNotEmpty
+                      ? NetworkImage(_avatarUrl!)
+                      : null,
+                  child: (_avatarUrl == null || _avatarUrl!.isEmpty)
+                      ? const Icon(Icons.person, size: 40)
+                      : null,
+                ),
+                const SizedBox(height: CoraTokens.spaceMd),
+                if (current != null)
+                  Text(
+                    'Friend Code: ${current.friendCode}',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 12),
-                  if (current != null) Text('Friend Code: ${current.friendCode}'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _displayName,
-                    decoration: const InputDecoration(labelText: 'Display name'),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _bio,
-                    minLines: 2,
-                    maxLines: 4,
-                    decoration: const InputDecoration(labelText: 'Bio'),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton(
-                    onPressed: _saving ? null : _changePhoto,
-                    child: const Text('Change photo'),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton(
-                    onPressed: _saving ? null : _saveProfile,
-                    child: const Text('Save profile'),
-                  ),
-                  if (_status.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(_status),
-                  ],
+                const SizedBox(height: CoraTokens.spaceSm),
+                TextField(
+                  controller: _displayName,
+                  decoration: const InputDecoration(labelText: 'Display name'),
+                ),
+                const SizedBox(height: CoraTokens.spaceSm),
+                TextField(
+                  controller: _bio,
+                  minLines: 2,
+                  maxLines: 4,
+                  decoration: const InputDecoration(labelText: 'Bio'),
+                ),
+                const SizedBox(height: CoraTokens.spaceMd),
+                OutlinedButton(
+                  onPressed: _saving ? null : _changePhoto,
+                  child: const Text('Change photo'),
+                ),
+                const SizedBox(height: CoraTokens.spaceSm),
+                FilledButton(
+                  onPressed: _saving ? null : _saveProfile,
+                  child: const Text('Save profile'),
+                ),
+                if (_status.isNotEmpty) ...[
+                  const SizedBox(height: CoraTokens.spaceSm),
+                  Text(_status),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

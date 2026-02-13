@@ -36,36 +36,45 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage() {
-    final trimmed = _controller.text.trim();
-    if (trimmed.isEmpty) return;
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
 
     setState(() {
-      _messages.add(trimmed);
+      _messages.add(text);
       _controller.clear();
     });
+
     _inputFocus.requestFocus();
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
-    if (_isMobile || event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.enter) {
+    // Don't override mobile IME behavior.
+    if (_isMobile) return KeyEventResult.ignored;
+
+    // Only handle key-down Enter presses.
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.enter) {
       return KeyEventResult.ignored;
     }
 
-    if (!widget.enterToSend) {
-      return KeyEventResult.ignored;
-    }
-
+    // Shift+Enter => newline (always).
     if (HardwareKeyboard.instance.isShiftPressed) {
       final value = _controller.value;
-      final start = value.selection.start >= 0 ? value.selection.start : value.text.length;
-      final end = value.selection.end >= 0 ? value.selection.end : value.text.length;
-      final updated = value.text.replaceRange(start, end, '\n');
+      final text = value.text;
+      final selection = value.selection;
+
+      final start = selection.start >= 0 ? selection.start : text.length;
+      final end = selection.end >= 0 ? selection.end : text.length;
+
+      final updated = text.replaceRange(start, end, '\n');
       _controller.value = TextEditingValue(
         text: updated,
         selection: TextSelection.collapsed(offset: start + 1),
       );
       return KeyEventResult.handled;
     }
+
+    // Enter => send (only if enabled)
+    if (!widget.enterToSend) return KeyEventResult.ignored;
 
     _sendMessage();
     return KeyEventResult.handled;
@@ -91,7 +100,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Align(
-                      alignment: index.isEven ? Alignment.centerLeft : Alignment.centerRight,
+                      alignment: index.isEven
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
                       child: GlassCard(child: Text(_messages[index])),
                     ),
                   ),
@@ -109,17 +120,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     focusNode: _inputFocus,
                     minLines: 1,
                     maxLines: 5,
-                    textInputAction: TextInputAction.send,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: widget.enterToSend
+                        ? TextInputAction.send
+                        : TextInputAction.newline,
                     onSubmitted: (_) {
-                      if (_isMobile || widget.enterToSend) {
-                        _sendMessage();
-                      }
+                      if (_isMobile && widget.enterToSend) _sendMessage();
                     },
                     decoration: const InputDecoration(hintText: 'Message...'),
                   ),
                 ),
               ),
-              IconButton(onPressed: _sendMessage, icon: const Icon(Icons.send)),
+              IconButton(
+                onPressed: _sendMessage,
+                icon: const Icon(Icons.send),
+              ),
             ],
           ),
         ),

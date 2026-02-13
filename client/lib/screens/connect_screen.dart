@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../widgets/glass_surface.dart';
 import '../services/api_config.dart';
+import '../theme/cora_theme.dart';
+import '../widgets/glass_surface.dart';
 
 class ConnectScreen extends StatefulWidget {
   const ConnectScreen({super.key});
@@ -57,6 +58,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
 
     String? foundBaseUrl;
     final workers = <Future<void>>[];
+
     for (var i = 0; i < 20; i++) {
       workers.add(Future<void>(() async {
         while (queue.isNotEmpty && !_cancelScan && foundBaseUrl == null) {
@@ -127,7 +129,8 @@ class _ConnectScreenState extends State<ConnectScreen> {
           .get(Uri.parse('$baseUrl/health'))
           .timeout(const Duration(milliseconds: 500));
       if (response.statusCode != 200) return false;
-      return response.body.contains('"ok":true') || response.body.contains('"ok": true');
+      return response.body.contains('"ok":true') ||
+          response.body.contains('"ok": true');
     } catch (_) {
       return false;
     }
@@ -151,7 +154,8 @@ class _ConnectScreenState extends State<ConnectScreen> {
     if (!ok) {
       setState(() {
         _isTestingManual = false;
-        _status = 'Could not connect. Check the URL and ensure the server is running.';
+        _status =
+            'Could not connect. Check the URL and ensure the server is running.';
       });
       return;
     }
@@ -171,7 +175,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
           title: const Text('Connect'),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(CoraTokens.spaceMd),
           child: ListView(
             children: [
               GlassCard(
@@ -179,7 +183,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text('Configure your Cora API server URL.'),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: CoraTokens.spaceMd),
                     TextField(
                       controller: _serverInput,
                       decoration: const InputDecoration(
@@ -187,16 +191,18 @@ class _ConnectScreenState extends State<ConnectScreen> {
                         hintText: 'http://192.168.178.158:8080',
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: CoraTokens.spaceMd),
                     FilledButton.icon(
                       onPressed: _isScanning ? null : _findLocalServer,
                       icon: const Icon(Icons.wifi_find),
                       label: const Text('Auto-detect on LAN'),
                     ),
                     if (_isScanning) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: CoraTokens.spaceSm),
                       LinearProgressIndicator(
-                        value: _totalHosts == 0 ? null : _scannedHosts / _totalHosts,
+                        value: _totalHosts == 0
+                            ? null
+                            : _scannedHosts / _totalHosts,
                       ),
                       const SizedBox(height: 6),
                       Text('Scanning $_scannedHosts / $_totalHosts hosts'),
@@ -205,13 +211,13 @@ class _ConnectScreenState extends State<ConnectScreen> {
                         child: const Text('Cancel scan'),
                       ),
                     ],
-                    const SizedBox(height: 8),
+                    const SizedBox(height: CoraTokens.spaceSm),
                     FilledButton(
                       onPressed: _isTestingManual ? null : _testAndSave,
                       child: const Text('Test & Save'),
                     ),
                     if (_status.isNotEmpty) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: CoraTokens.spaceSm),
                       Text(_status),
                     ],
                   ],

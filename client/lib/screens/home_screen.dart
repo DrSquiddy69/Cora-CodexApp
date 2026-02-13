@@ -4,17 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme/cora_theme.dart';
+import '../widgets/cora_scaffold.dart';
 import '../widgets/glass_surface.dart';
 
-class HomePanel extends StatefulWidget {
-  const HomePanel({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<HomePanel> createState() => _HomePanelState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePanelState extends State<HomePanel> {
+class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _notes;
+
+  bool _featuresExpanded = false;
+  bool _fixesExpanded = false;
+  bool _summaryExpanded = true;
 
   @override
   void initState() {
@@ -28,89 +33,122 @@ class _HomePanelState extends State<HomePanel> {
     setState(() => _notes = jsonDecode(raw) as Map<String, dynamic>);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final notes = _notes;
-    final width = MediaQuery.sizeOf(context).width;
-    final columns = width >= 1100
-        ? 3
-        : width >= 700
-            ? 2
-            : 1;
+  Widget _buildCard(
+    String title,
+    List<dynamic> lines, {
+    bool expanded = true,
+    ValueChanged<bool>? onTap,
+  }) {
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final line in lines)
+          Padding(
+            padding: const EdgeInsets.only(bottom: CoraTokens.spaceSm),
+            child: Text('• $line'),
+          ),
+      ],
+    );
 
-    if (notes == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final cards = [
-      _PatchCard(title: 'Feature Updates', lines: (notes['features'] as List<dynamic>).cast<String>()),
-      _PatchCard(title: 'Bug Fixes', lines: (notes['fixes'] as List<dynamic>).cast<String>()),
-      _PatchCard(title: 'Summary', lines: (notes['summary'] as List<dynamic>).cast<String>()),
-    ];
-
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
-        child: ListView(
-          padding: const EdgeInsets.all(CoraTokens.spaceMd),
+    // Desktop cards (no expand/collapse)
+    if (onTap == null) {
+      return GlassCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Welcome to Cora!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: CoraTokens.spaceSm),
-            Text('Version ${notes['version']} • ${notes['date']}'),
-            const SizedBox(height: CoraTokens.spaceMd),
-            GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: columns,
-              crossAxisSpacing: CoraTokens.spaceMd,
-              mainAxisSpacing: CoraTokens.spaceMd,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: columns == 1 ? 2.1 : 1.2,
-              children: cards,
-            ),
+            content,
           ],
         ),
-      ),
-    );
-  }
-}
+      );
+    }
 
-class _PatchCard extends StatelessWidget {
-  const _PatchCard({required this.title, required this.lines});
-
-  final String title;
-  final List<String> lines;
-
-  @override
-  Widget build(BuildContext context) {
+    // Mobile cards (expand/collapse)
     return GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        initiallyExpanded: expanded,
+        onExpansionChanged: onTap,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: CoraTokens.spaceSm),
-          for (final line in lines)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text('• $line'),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(top: CoraTokens.spaceSm),
+            child: content,
+          ),
         ],
       ),
     );
   }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlassBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('Home')),
-        body: const HomePanel(),
-      ),
+    final notes = _notes;
+    final mobile = MediaQuery.sizeOf(context).width < 600;
+
+    return CoraScaffold(
+      title: 'Welcome to Cora!',
+      currentIndex: 0,
+      child: notes == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              children: [
+                Text('Version ${notes['version']} • ${notes['date']}'),
+                const SizedBox(height: CoraTokens.spaceMd),
+                if (mobile) ...[
+                  _buildCard(
+                    'Feature Updates',
+                    notes['features'] as List<dynamic>,
+                    expanded: _featuresExpanded,
+                    onTap: (value) => setState(() => _featuresExpanded = value),
+                  ),
+                  const SizedBox(height: CoraTokens.spaceMd),
+                  _buildCard(
+                    'Bug Fixes',
+                    notes['fixes'] as List<dynamic>,
+                    expanded: _fixesExpanded,
+                    onTap: (value) => setState(() => _fixesExpanded = value),
+                  ),
+                  const SizedBox(height: CoraTokens.spaceMd),
+                  _buildCard(
+                    'Summary',
+                    notes['summary'] as List<dynamic>,
+                    expanded: _summaryExpanded,
+                    onTap: (value) => setState(() => _summaryExpanded = value),
+                  ),
+                ] else
+                  Wrap(
+                    spacing: CoraTokens.spaceMd,
+                    runSpacing: CoraTokens.spaceMd,
+                    children: [
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Feature Updates',
+                          notes['features'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Bug Fixes',
+                          notes['fixes'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 320,
+                        child: _buildCard(
+                          'Summary',
+                          notes['summary'] as List<dynamic>,
+                          onTap: null,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
     );
   }
 }
