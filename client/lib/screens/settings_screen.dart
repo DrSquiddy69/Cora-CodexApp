@@ -1,21 +1,21 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../main.dart';
 import '../services/api_config.dart';
-import '../widgets/cora_scaffold.dart';
+import '../services/app_settings.dart';
+import '../services/session.dart';
+import '../theme/cora_theme.dart';
+import '../widgets/glass_surface.dart';
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+class SettingsPanel extends StatefulWidget {
+  const SettingsPanel({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<SettingsPanel> createState() => _SettingsPanelState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  final _displayName = TextEditingController();
-  final _bio = TextEditingController();
-  final _avatar = TextEditingController();
+class _SettingsPanelState extends State<SettingsPanel> {
   late final TextEditingController _apiBaseUrl;
+  bool _enterToSend = AppSettings.enterToSend;
   String _status = '';
 
   @override
@@ -26,66 +26,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void dispose() {
-    _displayName.dispose();
-    _bio.dispose();
-    _avatar.dispose();
     _apiBaseUrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return CoraScaffold(
-      title: 'Settings',
-      currentIndex: 3,
-      child: ListView(
-        children: [
-          GlassCard(
-            child: Column(
-              children: [
-                TextField(
-                  controller: _displayName,
-                  decoration: const InputDecoration(labelText: 'Display name'),
-                ),
-                TextField(
-                  controller: _bio,
-                  decoration: const InputDecoration(labelText: 'Bio'),
-                ),
-                TextField(
-                  controller: _avatar,
-                  decoration: const InputDecoration(labelText: 'Avatar URL'),
-                ),
-                TextField(
-                  controller: _apiBaseUrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Cora API base URL',
-                    hintText: 'http://10.0.2.2:8080',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text('Default: E2EE enabled for DMs and private groups.'),
-                if (_status.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(_status),
-                  ),
-              ],
-            ),
+    final email = Session.currentUser?.email ?? 'Not signed in';
+
+    return ListView(
+      padding: const EdgeInsets.all(CoraTokens.spaceMd),
+      children: [
+        GlassCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Account', style: TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: CoraTokens.spaceSm),
+              Text('Email: $email'),
+              const SizedBox(height: CoraTokens.spaceMd),
+              FilledButton.tonal(
+                onPressed: () => Navigator.pushNamed(context, '/profile'),
+                child: const Text('Edit profile'),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: () async {
-              await ApiConfig.instance.saveBaseUrl(_apiBaseUrl.text);
+        ),
+        const SizedBox(height: CoraTokens.spaceMd),
+        GlassCard(
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Enter to send'),
+            subtitle: const Text('Desktop Enter sends, Shift+Enter adds newline.'),
+            value: _enterToSend,
+            onChanged: (value) async {
+              await AppSettings.setEnterToSend(value);
               if (!mounted) return;
-              setState(() => _status = 'Saved API URL: ${ApiConfig.instance.baseUrl}');
+              setState(() {
+                _enterToSend = value;
+                _status = 'Saved message input preference';
+              });
             },
-            child: const Text('Save changes'),
           ),
-          OutlinedButton(
-            onPressed: () => Navigator.pushNamed(context, '/about'),
-            child: const Text('About / Legal'),
+        ),
+        const SizedBox(height: CoraTokens.spaceMd),
+        GlassCard(
+          child: Column(
+            children: [
+              TextField(
+                controller: _apiBaseUrl,
+                decoration: const InputDecoration(
+                  labelText: 'Cora API base URL',
+                  hintText: 'http://127.0.0.1:8080',
+                ),
+              ),
+              const SizedBox(height: CoraTokens.spaceSm),
+              FilledButton(
+                onPressed: () async {
+                  await ApiConfig.instance.saveBaseUrl(_apiBaseUrl.text);
+                  if (!mounted) return;
+                  setState(() => _status = 'Saved API URL');
+                },
+                child: const Text('Save settings'),
+              ),
+              if (_status.isNotEmpty) ...[
+                const SizedBox(height: CoraTokens.spaceSm),
+                Text(_status),
+              ],
+            ],
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LiquidGlassBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('Settings')),
+        body: const SettingsPanel(),
       ),
     );
   }

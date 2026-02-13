@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
+import '../widgets/glass_surface.dart';
 
 class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
@@ -13,10 +13,14 @@ class GroupScreen extends StatelessWidget {
         appBar: AppBar(backgroundColor: Colors.transparent, title: const Text('Private group')),
         body: ListView(
           padding: const EdgeInsets.all(16),
-          children: const [
-            GlassCard(child: Text('E2EE enabled by default in private rooms (Matrix capable clients).')),
-            SizedBox(height: 10),
-            GlassCard(child: Text('Invite-only members:\n• You\n• QK82M')), 
+          children: [
+            const GlassCard(
+              child: Text('E2EE enabled by default in private rooms (Matrix capable clients).'),
+            ),
+            const SizedBox(height: 10),
+            const GlassCard(
+              child: Text('Invite-only members:\n• You\n• QK82M'),
+            ),
           ],
         ),
       ),
