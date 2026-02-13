@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../theme/cora_theme.dart';
 import '../services/api_config.dart';
+import '../theme/cora_theme.dart';
 import '../widgets/glass_surface.dart';
 
 class ConnectScreen extends StatefulWidget {

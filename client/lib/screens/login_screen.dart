@@ -44,13 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       setState(() => _status = 'Welcome ${user.displayName} (${user.friendCode})');
-
-      // After login, go to Home (your "Welcome to Cora!" + patch notes screen).
       Navigator.pushReplacementNamed(context, '/');
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _status = 'Login failed. Not connected? Tap Connect in the top-right.',
+        () => _status =
+            'Login failed. Not connected? Tap Connect in the top-right.',
       );
     }
   }

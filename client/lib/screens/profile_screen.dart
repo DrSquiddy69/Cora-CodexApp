@@ -142,16 +142,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : null,
                 ),
                 const SizedBox(height: CoraTokens.spaceMd),
-
-                // Privacy: never show email on profile UI.
                 if (current != null)
                   Text(
                     'Friend Code: ${current.friendCode}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-
                 const SizedBox(height: CoraTokens.spaceSm),
-
                 TextField(
                   controller: _displayName,
                   decoration: const InputDecoration(labelText: 'Display name'),

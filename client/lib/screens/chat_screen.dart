@@ -124,7 +124,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     textInputAction: widget.enterToSend
                         ? TextInputAction.send
                         : TextInputAction.newline,
-                    onSubmitted: widget.enterToSend ? (_) => _sendMessage() : null,
+                    onSubmitted: (_) {
+                      if (_isMobile && widget.enterToSend) _sendMessage();
+                    },
                     decoration: const InputDecoration(hintText: 'Message...'),
                   ),
                 ),

@@ -63,7 +63,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 const Text('Account', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: CoraTokens.spaceSm),
-                Text(current != null ? 'Signed in as: ${current.displayName}' : 'Not signed in'),
+                Text(
+                  current != null
+                      ? 'Signed in as: ${current.displayName}'
+                      : 'Not signed in',
+                ),
                 if (current != null) ...[
                   const SizedBox(height: CoraTokens.spaceSm),
                   Text('Friend Code: ${current.friendCode}'),
@@ -76,9 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: CoraTokens.spaceMd),
-
           GlassCard(
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -88,9 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: _setEnterToSend,
             ),
           ),
-
           const SizedBox(height: CoraTokens.spaceMd),
-
           GlassCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

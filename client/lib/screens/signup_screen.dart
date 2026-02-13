@@ -51,8 +51,6 @@ class _SignupScreenState extends State<SignupScreen> {
       if (!mounted) return;
 
       setState(() => _status = 'Friend code: ${user.friendCode}');
-
-      // After signup, go to Home (your "Welcome to Cora!" + patch notes screen).
       Navigator.pushReplacementNamed(context, '/');
     } catch (_) {
       if (!mounted) return;

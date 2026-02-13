@@ -163,11 +163,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.check),
-                            onPressed: () => _updateRequest(request.id, 'accepted'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'accepted'),
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () => _updateRequest(request.id, 'denied'),
+                            onPressed: () =>
+                                _updateRequest(request.id, 'denied'),
                           ),
                         ],
                       ),
